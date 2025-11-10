@@ -49,6 +49,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+        # ⭐ 把仓库 owner 转为小写，写入环境变量 OWNER_LC
+      - name: Set lowercase owner
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
+        env:
+          OWNER: ${{ github.repository_owner }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         
@@ -59,7 +66,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: ${{ env.OWNER_LC }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get current date
@@ -74,8 +81,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/sharelatex-base:arm64-latest
-            ghcr.io/${{ github.repository_owner }}/sharelatex-base:arm64-${{ steps.date.outputs.date }}
+            ghcr.io/${{ env.OWNER_LC }}/sharelatex-base:arm64-latest
+            ghcr.io/${{ env.OWNER_LC }}/sharelatex-base:arm64-${{ steps.date.outputs.date }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -86,10 +93,10 @@ jobs:
           file: ./server-ce/Dockerfile
           platforms: linux/arm64
           build-args: |
-            OVERLEAF_BASE_TAG=ghcr.io/${{ github.repository_owner }}/sharelatex-base:arm64-latest
+            OVERLEAF_BASE_TAG=ghcr.io/${{ env.OWNER_LC }}/sharelatex-base:arm64-latest
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/sharelatex:arm64-latest
-            ghcr.io/${{ github.repository_owner }}/sharelatex:arm64-${{ steps.date.outputs.date }}
+            ghcr.io/${{ env.OWNER_LC }}/sharelatex:arm64-latest
+            ghcr.io/${{ env.OWNER_LC }}/sharelatex:arm64-${{ steps.date.outputs.date }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
