@@ -452,9 +452,9 @@ const _ProjectController = {
       'editor-redesign-new-users',
       'writefull-frontend-migration',
       'chat-edit-delete',
-      'compile-timeout-remove-info',
       'ai-workbench',
       'compile-timeout-target-plans',
+      'writefull-keywords-generator',
       'writefull-figure-generator',
     ].filter(Boolean)
 
