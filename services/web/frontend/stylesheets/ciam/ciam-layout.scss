@@ -108,7 +108,6 @@
   border-radius: var(--ds-border-radius-400);
   max-width: 464px;
   margin: 0 auto;
-  min-height: 500px;
 
   @include media-breakpoint-up(sm) {
     padding: var(--ds-spacing-1300);
@@ -213,11 +212,6 @@
     background-size: 16px 16px;
     padding-left: calc(16px + var(--ds-spacing-200));
   }
-}
-
-.ciam-onboarding-steps-container {
-  text-align: center;
-  padding: var(--ds-spacing-250) var(--ds-spacing-400);
 }
 
 .ciam-dropdown-menu {
