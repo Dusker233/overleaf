@@ -397,7 +397,7 @@ const en = {
     'citations-checker.publications.insert': 'Insert',
     'citations-checker.publications.copy': 'Copy citation',
     'citations-checker.publications.copied': 'Copied to clipboard',
-    'citations-reviewer.chat.title': 'Citations reviewer',
+    'citations-reviewer.chat.title': 'Citation reviewer',
     'citations-reviewer.chat.description':
       '<b>Identified __count__ passages</b><br/>Here are statements in your article that may benefit from a citation.',
     'citations-reviewer.chat.document-updated':
@@ -417,6 +417,10 @@ const en = {
     'citations-reviewer.chat.publications.alternatively': 'Alternatively,',
     'citations-reviewer.chat.publications.custom-search':
       'search for papers yourself.',
+    'citations-reviewer.chat.publications.change-search':
+      'change the search criteria.',
+    'citations-reviewer.chat.publications.search-criteria':
+      'Search by "__type__": "__value__"',
     'citations-reviewer.chat.publications.passage': 'Passage to review',
     'citations-reviewer.chat.actions.refresh': 'Refresh citations',
     'citations-reviewer.chat.actions.back': 'Back',
@@ -884,6 +888,10 @@ const es = {
     'citations-reviewer.chat.publications.alternatively': 'Alternativamente,',
     'citations-reviewer.chat.publications.custom-search':
       'busca artículos por tu cuenta.',
+    'citations-reviewer.chat.publications.change-search':
+      'cambia los criterios de búsqueda.',
+    'citations-reviewer.chat.publications.search-criteria':
+      'Búsqueda por "__type__": "__value__"',
     'citations-reviewer.chat.publications.passage': 'Pasaje a revisar',
     'citations-reviewer.chat.actions.refresh': 'Actualizar citas',
     'citations-reviewer.chat.actions.back': 'Volver',
