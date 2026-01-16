@@ -17,9 +17,13 @@ import {
   CodeMirrorViewContext,
 } from './codemirror-context'
 import MathPreviewTooltip from './math-preview-tooltip'
+import { getVisualEditorComponent } from '../utils/visual-editor'
+import EditorContextMenu from './editor-context-menu'
 import { useToolbarMenuBarEditorCommands } from '@/features/ide-redesign/hooks/use-toolbar-menu-editor-commands'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
+import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
+import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
 
 // TODO: remove this when definitely no longer used
 export * from './codemirror-context'
@@ -69,6 +73,13 @@ function CodeMirrorEditor() {
 function CodeMirrorEditorComponents() {
   useToolbarMenuBarEditorCommands()
   const { features } = useProjectContext()
+  const { openDocName } = useEditorOpenDocContext()
+  const { showVisual } = useEditorPropertiesContext()
+
+  const VisualEditor =
+    showVisual && openDocName != null
+      ? getVisualEditorComponent(openDocName)
+      : null
 
   return (
     <ReviewPanelProviders>
@@ -80,6 +91,7 @@ function CodeMirrorEditorComponents() {
       <CodeMirrorCommandTooltip />
 
       <MathPreviewTooltip />
+      <EditorContextMenu />
       {features.trackChangesVisible && <ReviewTooltipMenu />}
       {features.trackChangesVisible && <ReviewPanelRoot />}
 
@@ -88,6 +100,8 @@ function CodeMirrorEditorComponents() {
           <Component key={path} />
         )
       )}
+
+      {VisualEditor && <VisualEditor />}
     </ReviewPanelProviders>
   )
 }

@@ -165,6 +165,8 @@ const en = {
     'ai-context-menu.advanced-options.paraphrase.level': 'Level',
     'ai-context-menu.advanced-options.paraphrase.style': 'Style',
     'ai-context-menu.advanced-options.paraphrase.length': 'Length',
+    'ai-context-menu.advanced-options.prompt': 'Prompt',
+    'ai-context-menu.advanced-options.advanced': 'Advanced',
     'ai-context-menu.translate': 'Translate',
     'blocked-language-suggestions-modal.title': 'Blocked Language Suggestions',
     'blocked-language-suggestions-modal.description':
@@ -425,6 +427,7 @@ const en = {
       'Clear search criteria',
     'citations-reviewer.chat.publications.passage': 'Passage to review',
     'citations-reviewer.chat.publications.no-authors': 'No authors',
+    'citations-reviewer.chat.publications.show-more': 'View more papers',
     'citations-reviewer.chat.actions.refresh': 'Refresh citations',
     'citations-reviewer.chat.actions.back': 'Back',
     'citations-reviewer.chat.actions.more-authors': '> More authors',
@@ -634,6 +637,8 @@ const es = {
     'ai-context-menu.advanced-options.paraphrase.level': 'Nivel',
     'ai-context-menu.advanced-options.paraphrase.style': 'Estilo',
     'ai-context-menu.advanced-options.paraphrase.length': 'Longitud',
+    'ai-context-menu.advanced-options.prompt': 'Prompt',
+    'ai-context-menu.advanced-options.advanced': 'Avanzado',
     'ai-context-menu.translate': 'Traducir',
     'blocked-language-suggestions-modal.title':
       'Sugerencias de Lenguaje Bloqueadas',
@@ -901,6 +906,7 @@ const es = {
       'Borrar criterios de búsqueda',
     'citations-reviewer.chat.publications.passage': 'Pasaje a revisar',
     'citations-reviewer.chat.publications.no-authors': 'Sin autores',
+    'citations-reviewer.chat.publications.show-more': 'Ver más artículos',
     'citations-reviewer.chat.actions.refresh': 'Actualizar citas',
     'citations-reviewer.chat.actions.back': 'Volver',
     'citations-reviewer.chat.actions.more-authors': '> Más autores',
