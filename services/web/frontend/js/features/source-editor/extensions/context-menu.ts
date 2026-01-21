@@ -13,6 +13,7 @@ import {
   EditorSelection,
   Prec,
 } from '@codemirror/state'
+import { closeAllContextMenusEffect } from '../utils/close-all-context-menus-effect'
 
 export const openContextMenuEffect = StateEffect.define<{
   pos: number
@@ -33,18 +34,28 @@ export const contextMenuStateField = StateField.define<ContextMenuState>({
   },
 
   update(field, tr) {
-    // Process state effects to open/close menu
+    let next = field
+
+    // Process effects in order but let open win if present in the same transaction
     for (const effect of tr.effects) {
+      if (
+        effect.is(closeContextMenuEffect) ||
+        effect.is(closeAllContextMenusEffect)
+      ) {
+        next = { tooltip: null, mousePosition: null }
+      }
       if (effect.is(openContextMenuEffect)) {
         const { pos, x, y } = effect.value
         return {
-          tooltip: buildContextMenuTooltip(pos),
+          tooltip: buildContextMenuTooltip(pos, { x, y }),
           mousePosition: { x, y },
         }
       }
-      if (effect.is(closeContextMenuEffect)) {
-        return { tooltip: null, mousePosition: null }
-      }
+    }
+
+    // If effects changed the state, return early so doc-change fallback doesn’t override it
+    if (next !== field) {
+      return next
     }
 
     // Close menu on document changes
@@ -61,20 +72,71 @@ export const contextMenuStateField = StateField.define<ContextMenuState>({
   ],
 })
 
-function buildContextMenuTooltip(pos: number): Tooltip {
+function buildContextMenuTooltip(
+  pos: number,
+  mousePosition: { x: number; y: number }
+): Tooltip {
   return {
     pos,
     above: false,
     strictSide: false,
     arrow: false,
-    create: createTooltipView,
+    create: () => createTooltipView(mousePosition),
   }
 }
 
-const createTooltipView = (): TooltipView => {
+const createTooltipView = (mousePosition: {
+  x: number
+  y: number
+}): TooltipView => {
   const dom = document.createElement('div')
   dom.className = 'editor-context-menu-container'
-  return { dom, overlap: true, offset: { x: 0, y: 0 } }
+
+  // Watch for size changes and reposition accordingly
+  const resizeObserver = new ResizeObserver(() => {
+    requestAnimationFrame(() => positionMenu(dom, mousePosition))
+  })
+  resizeObserver.observe(dom)
+
+  return {
+    dom,
+    overlap: true,
+    offset: { x: 0, y: 0 },
+    destroy() {
+      resizeObserver.disconnect()
+    },
+  }
+}
+
+function positionMenu(
+  dom: HTMLElement,
+  mousePosition: { x: number; y: number }
+) {
+  const bounds = dom.getBoundingClientRect()
+
+  // Wait for menu to render
+  if (bounds.width === 0 || bounds.height === 0) {
+    return
+  }
+
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+  const y = mousePosition.y
+
+  // Adjust horizontal position if menu would overflow right edge
+  let left = mousePosition.x
+  if (mousePosition.x + bounds.width > viewportWidth) {
+    left = viewportWidth - bounds.width
+  }
+  dom.style.setProperty('--context-menu-left', `${left}px`)
+  const spaceBelow = viewportHeight - y
+  let top = y
+  if (bounds.height > spaceBelow) {
+    // Show above if menu won't fit below
+    top = y - bounds.height
+  }
+
+  dom.style.setProperty('--context-menu-top', `${top}px`)
 }
 
 function isPositionInsideSelection(pos: number, from: number, to: number) {
@@ -130,12 +192,30 @@ function openContextMenuAtPosition(
 ): void {
   view.dispatch({
     selection,
-    effects: openContextMenuEffect.of({
-      pos,
-      x: clientX,
-      y: clientY,
-    }),
+    effects: [
+      closeAllContextMenusEffect.of(null),
+      openContextMenuEffect.of({
+        pos,
+        x: clientX,
+        y: clientY,
+      }),
+    ],
   })
+}
+
+function openContextMenuAtSelection(view: EditorView): boolean {
+  const { main } = view.state.selection
+  const pos = main.head
+  const coords = view.coordsAtPos(pos)
+  if (!coords) {
+    return false
+  }
+
+  // Keep the current selection; actions should apply to it
+  const selection = view.state.selection
+
+  openContextMenuAtPosition(view, pos, selection, coords.left, coords.top)
+  return true
 }
 
 function isClickOnGutter(target: HTMLElement): boolean {
@@ -246,6 +326,11 @@ const contextMenuKeymap = (): Extension =>
           return false
         },
       },
+      {
+        key: 'Shift-F10',
+        // Accessibility standard shortcut to open context menu
+        run: view => openContextMenuAtSelection(view),
+      },
     ])
   )
 
@@ -265,5 +350,8 @@ const contextMenuContainerTheme = EditorView.baseTheme({
     backgroundColor: 'transparent',
     border: 'none',
     zIndex: 100,
+    position: 'fixed !important',
+    top: 'var(--context-menu-top) !important',
+    left: 'var(--context-menu-left) !important',
   },
 })

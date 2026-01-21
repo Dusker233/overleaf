@@ -289,6 +289,8 @@ function setVarsDockerCompose({
 
   if (version === 'latest') {
     cfg.services.mongo.command = '--replSet overleaf --notablescan'
+  } else {
+    delete cfg.services.mongo.command
   }
 
   writeDockerComposeOverride(cfg)
