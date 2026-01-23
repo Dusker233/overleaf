@@ -27,7 +27,7 @@ const en = {
     'copy-code-copied': 'Copied!',
     'toggle-writefull-toolbar': 'Toggle Writefull toolbar',
     'toggle-writefull': 'Toggle Writefull',
-    'ask-texgpt': 'Ask TeXGPT',
+    'writing-tools': 'Writing tools',
     'synonyms-in-context': 'Synonyms in Context',
     translate: 'Translate',
     'translate.zh-CN': 'Chinese (Simplified)',
@@ -76,6 +76,14 @@ const en = {
       'Thank you for your language request',
     'translate.request-new-language.thanks.body':
       'We’ll review your request and consider adding it in the future',
+    'translate.non-latin-warning.title':
+      'Using __language__ characters in Overleaf',
+    'translate.non-latin-warning.body':
+      'To avoid compile issues with your translation, your project might need extra LaTeX packages to handle the proper characters.',
+    'translate.non-latin-warning.link': 'Learn how to use non-Latin characters',
+    'translate.non-latin-warning.dont-show-again':
+      "Don't show this warning again for non-Latin languages",
+    'translate.non-latin-warning.understood': 'I understand, continue',
     'blocked-suggestion-signpost.question':
       'Do you want to permanently stop this suggestion from appearing again?',
     'blocked-suggestion-signpost.tooltip': 'You can block a suggestion here.',
@@ -151,6 +159,7 @@ const en = {
     'ai-context-menu.change-style': 'Change style',
     'ai-context-menu.summarize': 'Summarize',
     'ai-context-menu.explain': 'Explain',
+    'ai-context-menu.rewrite': 'Rewrite',
     'ai-context-menu.back': 'back',
     'ai-context-menu.pin': 'Pin',
     'ai-context-menu.track-changes': 'Track Changes',
@@ -411,6 +420,9 @@ const en = {
       "We didn't identify any passages that need additional citation.",
     'citations-reviewer.chat.no-citations.run-again': 'Run again',
     'citations-reviewer.chat.no-citations.done': 'Done',
+    'citations-reviewer.chat.no-citations.rerun':
+      'Do you want us to run the check again with a lower threshold for showing passages that require additional citation?',
+    'citations-reviewer.chat.no-citations.rerun-yes': 'Yes, run again',
     'citations-reviewer.chat.publications.title': 'Suggested papers',
     'citations-reviewer.chat.publications.description':
       'The following papers may support the claim you’ve made. Always check papers yourself to ensure relevance.',
@@ -487,7 +499,7 @@ const es = {
     'copy-code-copied': '¡Copiado!',
     'toggle-writefull-toolbar': 'Mostrar/Ocultar barra de Writefull',
     'toggle-writefull': 'Mostrar/Ocultar Writefull',
-    'ask-texgpt': 'Preguntar a TeXGPT',
+    'writing-tools': 'Herramientas de escritura',
     'synonyms-in-context': 'Sinónimos en Contexto',
     translate: 'Traducir',
     'translate.zh-CN': 'Chino (Simplificado)',
@@ -536,6 +548,15 @@ const es = {
       'Gracias por tu solicitud de idioma',
     'translate.request-new-language.thanks.body':
       'Revisaremos tu solicitud y consideraremos agregarlo en el futuro',
+    'translate.non-latin-warning.title':
+      'Uso de caracteres __language__ en Overleaf',
+    'translate.non-latin-warning.body':
+      'Para evitar problemas de compilación con tu traducción, tu proyecto podría necesitar paquetes LaTeX adicionales para manejar los caracteres correspondientes.',
+    'translate.non-latin-warning.link':
+      'Aprende cómo usar caracteres no latinos',
+    'translate.non-latin-warning.dont-show-again':
+      'No mostrar esta advertencia nuevamente',
+    'translate.non-latin-warning.understood': 'Lo entiendo, continua',
     'blocked-suggestion-signpost.question':
       '¿Quieres dejar de ver esta sugerencia permanentemente? Puedes bloquear esta sugerencia aquí.',
     'blocked-suggestion-signpost.tooltip':
@@ -622,6 +643,7 @@ const es = {
     'ai-context-menu.change-style': 'Cambiar estilo',
     'ai-context-menu.summarize': 'Resumir',
     'ai-context-menu.explain': 'Explicar',
+    'ai-context-menu.rewrite': 'Reescribir',
     'ai-context-menu.back': 'Atrás',
     'ai-context-menu.pin': 'Anclar',
     'ai-context-menu.track-changes': 'Control de Cambios',
@@ -888,6 +910,9 @@ const es = {
       'No se identificaron pasajes que necesiten citas adicionales.',
     'citations-reviewer.chat.no-citations.run-again': 'Volver a ejecutar',
     'citations-reviewer.chat.no-citations.done': 'Hecho',
+    'citations-reviewer.chat.no-citations.rerun':
+      '¿Quieres que volvamos a ejecutar la revisión con un umbral más bajo para mostrar pasajes que requieran citas adicionales?',
+    'citations-reviewer.chat.no-citations.rerun-yes': 'Sí, volver a ejecutar',
     'citations-reviewer.chat.publications.title': 'Artículos sugeridos',
     'citations-reviewer.chat.publications.description':
       'Los siguientes artículos pueden respaldar la afirmación que has hecho. Revisa siempre los artículos por tu cuenta para asegurar su relevancia.',
