@@ -1,36 +1,35 @@
 #!/usr/bin/env node
 
 /**
- * This script bulk cancels active Stripe subscriptions immediately without proration.
+ * This script bulk cancels pending Stripe subscription schedules (status: "not_started")
+ * that are not attached to a subscription (this can be deleted once the migration is complete)
  *
- * NOTE: this will email customers to inform them of the cancellation unless you turn off
- * the cancellation automation in Stripe beforehand: https://dashboard.stripe.com/<account>/revenue-recovery/automations
+ * For each customer in the input CSV, it:
+ * 1. Lists all subscription schedules for the customer
+ * 2. Finds the schedule with status "not_started"
+ * 3. Cancels that schedule via the Stripe API
+ *
+ * NOTE: this will NOT email customers to inform them of the cancellation
  *
  * Usage:
- *   node scripts/stripe/bulk-cancel-subscriptions.mjs [OPTS] [INPUT-FILE]
+ *   node scripts/stripe/bulk-cancel-subscription-schedules.mjs [OPTS] [INPUT-FILE]
  *
  * Options:
- *   --output PATH                 Output file path (default: /tmp/bulk_cancel_output_<timestamp>.csv)
- *                                 Use '-' to write to stdout
- *   --commit                      Apply changes (without this flag, runs in dry-run mode)
+ *   --output PATH                 Output file path (default: /tmp/bulk_cancel_schedules_output_<timestamp>.csv)
+ *   --commit                      Apply changes (without this, runs in dry-run mode)
  *   --concurrency N               Number of customers to process concurrently (default: 10)
  *   --stripe-rate-limit N         Requests per second for Stripe (default: 50)
  *   --stripe-api-retries N        Number of retries on Stripe 429s (default: 5)
  *   --stripe-retry-delay-ms N     Delay between Stripe retries in ms (default: 1000)
- *   --help                        Show a help message
+ *   --help                        Show help message
  *
  * CSV Input Format:
  *   The CSV must have the following columns:
  *   - stripe_customer_id: Stripe customer id
  *   - target_stripe_account: Either 'stripe-uk' or 'stripe-us'
  *
- * Output:
- *   Writes a CSV with columns:
- *   - stripe_customer_id: The customer id processed
- *   - target_stripe_account: The Stripe account
- *   - subscription_id: The subscription id that was cancelled (if found)
- *   - status: Result status (cancelled, validated, no-subscription, already-cancelled, or error)
- *   - note: Additional information about the status
+ * CSV Output Format:
+ *   stripe_customer_id,target_stripe_account,schedule_id,status,note
  */
 
 import fs from 'node:fs'
@@ -49,19 +48,16 @@ import {
   DEFAULT_STRIPE_RETRY_DELAY_MS,
 } from './RateLimiter.mjs'
 
-const DEFAULT_CONCURRENCY = 10
-
 // rate limiters - initialized in main()
 let rateLimiters
 
 function usage() {
-  console.error(`Usage: node scripts/stripe/bulk-cancel-subscriptions.mjs [OPTS] [INPUT-FILE]
+  console.error(`Usage: node scripts/stripe/bulk-cancel-subscription-schedules.mjs [OPTS] [INPUT-FILE]
 
 Options:
-    --output PATH                 Output file path (default: /tmp/bulk_cancel_output_<timestamp>.csv)
-                                  Use '-' to write to stdout
+    --output PATH                 Output file path (default: /tmp/bulk_cancel_schedules_output_<timestamp>.csv)
     --commit                      Apply changes (without this, runs in dry-run mode)
-    --concurrency N               Number of customers to process concurrently (default: ${DEFAULT_CONCURRENCY})
+    --concurrency N               Number of customers to process concurrently (default: 10)
     --stripe-rate-limit N         Requests per second for Stripe (default: ${DEFAULT_STRIPE_RATE_LIMIT})
     --stripe-api-retries N        Number of retries on Stripe 429s (default: ${DEFAULT_STRIPE_API_RETRIES})
     --stripe-retry-delay-ms N     Delay between Stripe retries in ms (default: ${DEFAULT_STRIPE_RETRY_DELAY_MS})
@@ -72,16 +68,18 @@ Options:
 async function main(trackProgress) {
   const opts = parseArgs()
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const outputFile = opts.output ?? `/tmp/bulk_cancel_output_${timestamp}.csv`
+  const outputFile =
+    opts.output ?? `/tmp/bulk_cancel_schedules_output_${timestamp}.csv`
 
-  // initialize rate limiters
   rateLimiters = createRateLimitedApiWrappers({
     stripeRateLimit: opts.stripeRateLimit,
     stripeApiRetries: opts.stripeApiRetries,
     stripeRetryDelayMs: opts.stripeRetryDelayMs,
   })
 
-  await trackProgress('Starting bulk subscription cancellation for Stripe')
+  await trackProgress(
+    'Starting bulk subscription schedule cancellation for Stripe'
+  )
   await trackProgress(`Run mode: ${opts.commit ? 'COMMIT' : 'DRY RUN'}`)
   await trackProgress(`Rate limit: Stripe ${opts.stripeRateLimit}/s`)
   await trackProgress(`Concurrency: ${opts.concurrency}`)
@@ -92,7 +90,7 @@ async function main(trackProgress) {
   const csvReader = getCsvReader(inputStream)
   const csvWriter = getCsvWriter(outputFile)
 
-  await trackProgress(`Output: ${outputFile === '-' ? 'stdout' : outputFile}`)
+  await trackProgress(`Output: ${outputFile}`)
 
   let processedCount = 0
   let successCount = 0
@@ -111,16 +109,14 @@ async function main(trackProgress) {
         processedCount++
 
         try {
-          const result = await processCancellation(input, opts.commit)
+          const result = await processScheduleCancellation(input, opts.commit)
 
           csvWriter.write({
             stripe_customer_id: input.stripe_customer_id,
             target_stripe_account: input.target_stripe_account,
-            subscription_id: result.subscriptionId || '',
+            schedule_id: result.scheduleId || '',
             status: result.status,
-            note:
-              result.note ||
-              (opts.commit ? '' : 'dry run - no changes applied'),
+            note: result.note,
           })
 
           if (result.status === 'cancelled' || result.status === 'validated') {
@@ -129,33 +125,20 @@ async function main(trackProgress) {
             errorCount++
           }
 
-          if (processedCount % 10 === 0) {
+          if (processedCount % 25 === 0) {
             await trackProgress(
-              `Processed ${processedCount} customers (${successCount} ${opts.commit ? 'cancelled' : 'validated'}, ${errorCount} errors)`
+              `Progress: ${processedCount} processed, ${successCount} successful, ${errorCount} errors`
             )
           }
         } catch (err) {
           errorCount++
-          if (err instanceof ReportError) {
-            csvWriter.write({
-              stripe_customer_id: input.stripe_customer_id,
-              target_stripe_account: input.target_stripe_account,
-              subscription_id: '',
-              status: err.status,
-              note: err.message,
-            })
-          } else {
-            csvWriter.write({
-              stripe_customer_id: input.stripe_customer_id,
-              target_stripe_account: input.target_stripe_account,
-              subscription_id: '',
-              status: 'error',
-              note: err.message,
-            })
-            await trackProgress(
-              `Error processing ${input.stripe_customer_id}: ${err.message}`
-            )
-          }
+          csvWriter.write({
+            stripe_customer_id: input.stripe_customer_id,
+            target_stripe_account: input.target_stripe_account,
+            schedule_id: '',
+            status: err instanceof ReportError ? err.status : 'error',
+            note: err.message,
+          })
         }
       })
     }
@@ -188,18 +171,10 @@ function parseArgs() {
     boolean: ['commit', 'help'],
     default: {
       commit: false,
-      concurrency: DEFAULT_CONCURRENCY,
+      concurrency: 10,
       'stripe-rate-limit': DEFAULT_STRIPE_RATE_LIMIT,
       'stripe-api-retries': DEFAULT_STRIPE_API_RETRIES,
       'stripe-retry-delay-ms': DEFAULT_STRIPE_RETRY_DELAY_MS,
-    },
-    unknown: arg => {
-      if (arg.startsWith('-')) {
-        console.error(`Unknown option: ${arg}`)
-        usage()
-        process.exit(1)
-      }
-      return true
     },
   })
 
@@ -243,25 +218,6 @@ function getCsvReader(inputStream) {
 }
 
 function getCsvWriter(outputFile) {
-  if (outputFile === '-') {
-    const writer = csv.stringify({
-      columns: [
-        'stripe_customer_id',
-        'target_stripe_account',
-        'subscription_id',
-        'status',
-        'note',
-      ],
-      header: true,
-    })
-    writer.on('error', err => {
-      console.error(err)
-      process.exit(1)
-    })
-    writer.pipe(process.stdout)
-    return writer
-  }
-
   fs.mkdirSync(path.dirname(outputFile), { recursive: true })
   const outputStream = fs.createWriteStream(outputFile)
 
@@ -269,7 +225,7 @@ function getCsvWriter(outputFile) {
     columns: [
       'stripe_customer_id',
       'target_stripe_account',
-      'subscription_id',
+      'schedule_id',
       'status',
       'note',
     ],
@@ -285,81 +241,93 @@ function getCsvWriter(outputFile) {
   return writer
 }
 
-async function processCancellation(input, commit) {
+async function processScheduleCancellation(input, commit) {
   const {
     stripe_customer_id: customerId,
     target_stripe_account: targetStripeAccount,
   } = input
 
-  // get Stripe client for the target account (strip 'stripe-' prefix if present)
+  // get Stripe client for the target account
   const region = targetStripeAccount.replace(/^stripe-/, '')
   const stripeClient = getRegionClient(region)
 
-  // fetch customer with subscriptions
-  let customer
+  // list all subscription schedules for this customer
+  let schedules
   try {
-    customer = await rateLimiters.requestWithRetries(
+    schedules = await rateLimiters.requestWithRetries(
       stripeClient.serviceName,
-      () => stripeClient.getCustomerById(customerId, ['subscriptions']),
+      () =>
+        stripeClient.stripe.subscriptionSchedules.list({
+          customer: customerId,
+          limit: 100, // max limit
+        }),
       {
-        operation: 'getCustomerById',
+        operation: 'subscriptionSchedules.list',
         customerId,
         region: stripeClient.serviceName,
       }
     )
   } catch (err) {
     throw new ReportError(
-      'customer-not-found',
-      `Customer not found: ${err.message}`
+      'list-schedules-failed',
+      `Failed to list subscription schedules: ${err.message}`
     )
   }
 
-  // check for active subscriptions
-  if (!customer.subscriptions || customer.subscriptions.data.length === 0) {
-    throw new ReportError('no-subscriptions', 'Customer has no subscriptions')
-  }
-
-  // find the subscription with migration metadata
-  const migrationSubscription = customer.subscriptions.data.find(
-    sub => sub.metadata?.recurly_to_stripe_migration_status === 'in_progress'
+  // find the schedule with status "not_started"
+  const notStartedSchedules = schedules.data.filter(
+    schedule =>
+      schedule.status === 'not_started' &&
+      schedule.subscription == null &&
+      schedule.metadata?.billing_migration_id != null
   )
-  if (!migrationSubscription) {
+
+  if (notStartedSchedules.length === 0) {
     throw new ReportError(
-      'no-migration-subscription',
-      'Could not find a subscription with migration metadata to cancel'
+      'no-not-started-schedule',
+      `No subscription schedule with status "not_started" found for customer ${customerId}`
     )
   }
 
-  // in dry-run mode, just validate
+  if (notStartedSchedules.length > 1) {
+    const scheduleIds = notStartedSchedules.map(s => s.id).join(', ')
+    throw new ReportError(
+      'multiple-not-started-schedules',
+      `Found ${notStartedSchedules.length} schedules with status "not_started" (${scheduleIds}), expected exactly 1`
+    )
+  }
+
+  const targetSchedule = notStartedSchedules[0]
+
   if (!commit) {
     return {
       status: 'validated',
-      note: 'Subscription can be cancelled',
-      subscriptionId: migrationSubscription.id,
+      note: `Schedule ${targetSchedule.id} can be cancelled`,
+      scheduleId: targetSchedule.id,
     }
   }
 
-  // cancel the subscription immediately
+  // cancel the schedule
   try {
     await rateLimiters.requestWithRetries(
       stripeClient.serviceName,
-      () => stripeClient.terminateSubscription(migrationSubscription.id),
+      () => stripeClient.stripe.subscriptionSchedules.cancel(targetSchedule.id),
       {
-        operation: 'terminateSubscription',
-        subscriptionId: migrationSubscription.id,
+        operation: 'subscriptionSchedules.cancel',
+        scheduleId: targetSchedule.id,
         region: stripeClient.serviceName,
       }
     )
 
     return {
       status: 'cancelled',
-      note: `Cancelled subscription ${migrationSubscription.id}`,
-      subscriptionId: migrationSubscription.id,
+      note: `Cancelled schedule ${targetSchedule.id}`,
+      scheduleId: targetSchedule.id,
     }
   } catch (err) {
     throw new ReportError(
-      'cancellation-failed',
-      `Failed to cancel subscription: ${err.message}`
+      'cancel-schedule-failed',
+      `Failed to cancel schedule ${targetSchedule.id}: ${err.message}`
     )
   }
 }
