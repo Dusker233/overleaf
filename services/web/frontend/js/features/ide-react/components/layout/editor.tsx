@@ -9,12 +9,18 @@ import { Suspense } from 'react'
 import { FullSizeLoadingSpinner } from '@/shared/components/loading-spinner'
 import SymbolPalettePane from '@/features/ide-react/components/editor/symbol-palette-pane'
 import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
+import { PythonEditorSplit } from '@/features/ide-react/components/layout/python-editor-split'
+import { isInExperiment } from '@/utils/labs-utils'
 
 export const Editor = () => {
   const { opening, errorState, showSymbolPalette } =
     useEditorPropertiesContext()
   const { selectedEntityCount, openEntity } = useFileTreeOpenContext()
   const { currentDocumentId, currentDocument } = useEditorOpenDocContext()
+  const isPythonDocument =
+    openEntity?.type === 'doc' &&
+    openEntity.entity.name.toLowerCase().endsWith('.py')
+  const pythonExecutionEnabled = isInExperiment('overleaf-code')
 
   if (!currentDocumentId) {
     return null
@@ -39,7 +45,11 @@ export const Editor = () => {
           order={1}
           className="ide-redesign-editor-panel"
         >
-          <SourceEditor />
+          {isPythonDocument && pythonExecutionEnabled ? (
+            <PythonEditorSplit />
+          ) : (
+            <SourceEditor />
+          )}
           {isLoading && <EditorLoadingPane />}
         </Panel>
         {showSymbolPalette && (
