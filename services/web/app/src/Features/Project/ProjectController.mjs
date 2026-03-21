@@ -455,7 +455,6 @@ const _ProjectController = {
       'word-count-client',
       'editor-popup-ux-survey-03-2026',
       'editor-redesign-new-users',
-      'writefull-frontend-migration',
       'chat-edit-delete',
       'ai-workbench-release',
       'compile-timeout-target-plans',
@@ -473,6 +472,7 @@ const _ProjectController = {
       'plans-2026-phase-1',
       'testing-ai-usage',
       'wf-fake-non-english-suggestions',
+      'editor-tabs',
     ].filter(Boolean)
 
     const getUserValues = async userId =>

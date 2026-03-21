@@ -1,39 +1,33 @@
 import LabsExperimentWidget, {
   LabsExperimentWidgetProps,
 } from '@/shared/components/labs/labs-experiments-widget'
-import MaterialIcon from '@/shared/components/material-icon'
 import { isInExperiment } from '@/utils/labs-utils'
-import { isSplitTestEnabled } from '@/utils/splitTestUtils'
 import { useState } from 'react'
+import MaterialIcon from '@/shared/components/material-icon'
+import { isSplitTestEnabled } from '@/utils/splitTestUtils'
 
 type LabsWidgetProps = Pick<LabsExperimentWidgetProps, 'setErrorMessage'> & {
   labsProgram: boolean
 }
 
 const LabsWidget = ({ setErrorMessage, labsProgram }: LabsWidgetProps) => {
-  const [optedIn, setOptedIn] = useState(isInExperiment('overleaf-code'))
-
-  if (!isSplitTestEnabled('overleaf-code')) {
-    return null
-  }
+  const [optedIn, setOptedIn] = useState(isInExperiment('editor-tabs'))
 
   const description = (
-    <span>
-      Run Python code while editing <code>.py</code> files
-    </span>
+    <span>Quickly switch between open files and documents using tabs.</span>
   )
 
   return (
     <LabsExperimentWidget
       description={description}
-      experimentName="overleaf-code"
-      title="Overleaf Code (Python execution)"
+      experimentName="editor-tabs"
+      title="Editor tabs"
       setOptedIn={setOptedIn}
       setErrorMessage={setErrorMessage}
       optedIn={optedIn}
       logo={
         <MaterialIcon
-          type="code"
+          type="tab_group"
           className="rounded bg-primary-subtle labs-experiment-icon"
         />
       }
@@ -43,6 +37,6 @@ const LabsWidget = ({ setErrorMessage, labsProgram }: LabsWidgetProps) => {
   )
 }
 
-export const hidden = () => !isSplitTestEnabled('overleaf-code')
+export const hidden = () => !isSplitTestEnabled('editor-tabs')
 
 export default LabsWidget
