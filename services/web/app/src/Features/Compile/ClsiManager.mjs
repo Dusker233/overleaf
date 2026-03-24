@@ -42,6 +42,10 @@ const CLSI_COOKIES_ENABLED = (Settings.clsiCookie?.key ?? '') !== ''
 // The timeout in services/clsi/app.js is 10 minutes, so we'll be on the safe side with 12 minutes
 const COMPILE_REQUEST_TIMEOUT_MS = 12 * 60 * 1000
 
+// Enable clsi-cache for all compiles for 20min when detecting low capacity.
+const ENABLE_COMPILE_FROM_CACHE_ON_503_MS = 20 * 60 * 1000
+let enableCompileFromCacheUntil = 0
+
 function _baseHistoryVersionKey(projectId, userId) {
   return `baseHistoryVersion:${projectId}:${userId}`
 }
@@ -677,7 +681,9 @@ async function _postToClsi(
         return { response: { compile: { status: 'conflict' } } }
       } else if (err.response.status === 423) {
         return { response: { compile: { status: 'compile-in-progress' } } }
-      } else if (err.response.status === 503) {
+      } else if (err.response.status === 502 || err.response.status === 503) {
+        enableCompileFromCacheUntil =
+          Date.now() + ENABLE_COMPILE_FROM_CACHE_ON_503_MS
         return { response: { compile: { status: 'unavailable' } } }
       } else if (err.response.status === 504) {
         return { response: { compile: { status: 'timedout' } } }
@@ -1104,12 +1110,12 @@ function _finaliseRequest(projectId, options, project, docs, files) {
         compileGroup: options.compileGroup,
         // Overleaf alpha/staff users get compileGroup=alpha (via getProjectCompileLimits in CompileManager), enroll them into the premium rollout of clsi-cache.
         compileFromClsiCache:
-          ['alpha', 'priority'].includes(options.compileGroup) &&
-          options.compileFromClsiCache,
-        populateClsiCache:
+          // enable for premium compiles
           (['alpha', 'priority'].includes(options.compileGroup) ||
-            options.metricsPath === 'clsi-cache-template') &&
-          options.populateClsiCache,
+            // enable for free for short period when we saw low capacity
+            enableCompileFromCacheUntil > Date.now()) &&
+          options.compileFromClsiCache,
+        populateClsiCache: options.populateClsiCache,
         enablePdfCaching:
           (Settings.enablePdfCaching && options.enablePdfCaching) || false,
         pdfCachingMinChunkSize: options.pdfCachingMinChunkSize,
