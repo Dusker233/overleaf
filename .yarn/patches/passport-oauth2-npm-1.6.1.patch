@@ -1,7 +1,7 @@
-diff --git a/node_modules/passport-oauth2/lib/utils.js b/node_modules/passport-oauth2/lib/utils.js
+diff --git a/lib/utils.js b/lib/utils.js
 index 486f9e1..4584507 100644
---- a/node_modules/passport-oauth2/lib/utils.js
-+++ b/node_modules/passport-oauth2/lib/utils.js
+--- a/lib/utils.js
++++ b/lib/utils.js
 @@ -24,7 +24,7 @@ exports.originalURL = function(req, options) {
    var trustProxy = options.proxy;
    

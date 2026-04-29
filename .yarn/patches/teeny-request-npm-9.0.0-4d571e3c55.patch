@@ -1,7 +1,7 @@
-diff --git a/node_modules/@google-cloud/storage/node_modules/teeny-request/build/src/index.js b/node_modules/@google-cloud/storage/node_modules/teeny-request/build/src/index.js
-index af5d15e..2b63d0c 100644
---- a/node_modules/@google-cloud/storage/node_modules/teeny-request/build/src/index.js
-+++ b/node_modules/@google-cloud/storage/node_modules/teeny-request/build/src/index.js
+diff --git a/build/src/index.js b/build/src/index.js
+index af5d15e260e2a47588c7c536447fe84bd3f86136..2b63d0c0b1eb6595c7a0bb314c1df792454c1a72 100644
+--- a/build/src/index.js
++++ b/build/src/index.js
 @@ -115,6 +115,9 @@ function createMultipartStream(boundary, multipart) {
          }
          else {

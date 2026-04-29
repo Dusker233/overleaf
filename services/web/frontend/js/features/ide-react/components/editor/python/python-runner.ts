@@ -4,6 +4,7 @@
 import { v4 as uuid } from 'uuid'
 import { debugConsole } from '@/utils/debugging'
 import { PyodideWorkerClient } from './pyodide-worker-client'
+import type { OutputStream } from './pyodide-worker-messages'
 
 const MAX_OUTPUT_LINES = 100
 
@@ -21,8 +22,13 @@ export type ExecutionContext = {
 
 type Listener = () => void
 
+export type OutputLine = {
+  stream: OutputStream
+  line: string
+}
+
 export type PythonRunnerState = {
-  output: string[]
+  output: OutputLine[]
   status: ExecutionStatus
   error: string | null
 }
@@ -116,11 +122,13 @@ export class PythonRunner {
             this.updateState({ status: 'finished' })
         }
       },
-      onOutput: (_stream, line, fileId, executionId) => {
+      onOutput: (stream, line, fileId, executionId) => {
         if (fileId !== this.fileId || this.activeExecutionId !== executionId) {
           return
         }
-        this.updateState({ output: appendCapped(this.state.output, line) })
+        this.updateState({
+          output: appendCapped(this.state.output, { stream, line }),
+        })
       },
     })
   }
@@ -185,7 +193,10 @@ export class PythonRunner {
       status: 'loading',
       output:
         this.state.status === 'running'
-          ? appendCapped(this.state.output, 'Execution interrupted')
+          ? appendCapped(this.state.output, {
+              stream: 'info',
+              line: 'Execution interrupted',
+            })
           : this.state.output,
     })
   }
@@ -198,8 +209,8 @@ export class PythonRunner {
   }
 }
 
-function appendCapped(existing: string[], line: string): string[] {
-  const updated = [...existing, line]
+function appendCapped(existing: OutputLine[], entry: OutputLine): OutputLine[] {
+  const updated = [...existing, entry]
   return updated.length > MAX_OUTPUT_LINES
     ? updated.slice(-MAX_OUTPUT_LINES)
     : updated

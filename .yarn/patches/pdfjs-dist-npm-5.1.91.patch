@@ -1,7 +1,7 @@
-diff --git a/node_modules/pdfjs-dist/build/pdf.worker.mjs b/node_modules/pdfjs-dist/build/pdf.worker.mjs
+diff --git a/build/pdf.worker.mjs b/build/pdf.worker.mjs
 index 6c5c6f1..bb6b7d1 100644
---- a/node_modules/pdfjs-dist/build/pdf.worker.mjs
-+++ b/node_modules/pdfjs-dist/build/pdf.worker.mjs
+--- a/build/pdf.worker.mjs
++++ b/build/pdf.worker.mjs
 @@ -1830,7 +1830,7 @@ async function __wbg_init(module_or_path) {
      }
    }

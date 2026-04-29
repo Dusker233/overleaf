@@ -1,7 +1,7 @@
-diff --git a/node_modules/multer/lib/make-middleware.js b/node_modules/multer/lib/make-middleware.js
+diff --git a/lib/make-middleware.js b/lib/make-middleware.js
 index ee50988..de77364 100644
---- a/node_modules/multer/lib/make-middleware.js
-+++ b/node_modules/multer/lib/make-middleware.js
+--- a/lib/make-middleware.js
++++ b/lib/make-middleware.js
 @@ -164,7 +164,7 @@ function makeMiddleware (setup) {
        if (fieldname == null) return abortWithCode('MISSING_FIELD_NAME')
  

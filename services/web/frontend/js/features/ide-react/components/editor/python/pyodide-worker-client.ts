@@ -1,11 +1,13 @@
 import type {
+  OutputStream,
+  OutputFileData,
   ProjectFileData,
   PyodideWorkerRequest,
   PyodideWorkerResponse,
 } from './pyodide-worker-messages'
 
 export type OutputCallback = (
-  stream: 'stdout' | 'stderr',
+  stream: OutputStream,
   line: string,
   fileId: string,
   executionId: string
@@ -19,7 +21,9 @@ export type LifecycleCallback = (
         type: 'run-finished'
         fileId: string
         executionId: string
+        success: boolean
         outputs: string[]
+        outputFiles: OutputFileData[]
       }
 ) => void
 
@@ -159,7 +163,9 @@ export class PyodideWorkerClient {
           type: 'run-finished',
           fileId: response.fileId,
           executionId: response.executionId,
+          success: response.success,
           outputs: response.outputs,
+          outputFiles: response.outputFiles,
         })
     }
   }
