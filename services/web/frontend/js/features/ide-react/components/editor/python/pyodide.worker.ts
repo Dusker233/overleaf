@@ -3,6 +3,7 @@ import path from 'path-browserify'
 import type { PyodideInterface } from 'pyodide'
 import type {
   OutputFileData,
+  InitRequest,
   ProjectFileData,
   PyodideWorkerRequest,
   RunCodeRequest,
@@ -49,6 +50,7 @@ function syncProjectFiles(fs: PyodideFS, files: ProjectFileData[]) {
 }
 
 let pyodideModule: PyodideModule | null = null
+let pyodideIndexUrl: string | undefined
 
 async function loadPyodideModule(pyodideIndexUrl: string) {
   const runtimeModuleUrl = `${pyodideIndexUrl}pyodide.mjs`
@@ -66,11 +68,8 @@ async function loadPyodideModule(pyodideIndexUrl: string) {
   }
 }
 
-async function handleInit(msg: { baseAssetPath: string }) {
-  const pyodideIndexUrl = new URL(
-    PYODIDE_INDEX_PATH,
-    msg.baseAssetPath
-  ).toString()
+async function handleInit(msg: InitRequest) {
+  pyodideIndexUrl = new URL(PYODIDE_INDEX_PATH, msg.baseAssetPath).toString()
 
   try {
     pyodideModule = await loadPyodideModule(pyodideIndexUrl)
@@ -88,7 +87,7 @@ async function handleInit(msg: { baseAssetPath: string }) {
 async function handleRunCode(msg: RunCodeRequest) {
   const { fileId, executionId } = msg
 
-  if (!pyodideModule) {
+  if (!pyodideModule || !pyodideIndexUrl) {
     self.postMessage({
       type: 'output-line',
       stream: 'stderr',
@@ -109,6 +108,7 @@ async function handleRunCode(msg: RunCodeRequest) {
 
   const instance = await pyodideModule.loadPyodide({
     env: { MPLBACKEND: 'Agg' },
+    packageBaseUrl: `${pyodideIndexUrl}${pyodideModule.version}/`,
   })
 
   const writtenPaths = new Set<string>()
@@ -157,6 +157,7 @@ async function handleRunCode(msg: RunCodeRequest) {
       return originalWrite.call(fs, ...args)
     }) as PyodideFS['write']
 
+    await instance.loadPackagesFromImports(msg.code)
     const result = await instance.runPythonAsync(msg.code)
     if (result !== undefined) {
       self.postMessage({

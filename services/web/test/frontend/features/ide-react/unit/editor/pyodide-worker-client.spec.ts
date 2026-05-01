@@ -346,7 +346,10 @@ describe('PyodideWorkerClient', function () {
 
       newWorker.emitMessage({ type: 'listening' })
       expect(newWorker.postedMessages).to.deep.equal([
-        { type: 'init', baseAssetPath: BASE_ASSET_PATH },
+        {
+          type: 'init',
+          baseAssetPath: BASE_ASSET_PATH,
+        },
       ])
     })
 
