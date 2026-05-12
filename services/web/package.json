@@ -191,7 +191,7 @@
     "xml-crypto": "^2.1.6",
     "xml2js": "^0.6.2",
     "xregexp": "^4.3.0",
-    "yauzl": "^2.10.0",
+    "yauzl": "^3.3.0",
     "zod": "^4.0.17",
     "zod-validation-error": "^4.0.1"
   },
@@ -395,7 +395,6 @@
     "rehype-sanitize": "^6.0.0",
     "resolve-url-loader": "^5.0.0",
     "samlp": "^7.0.2",
-    "sandboxed-module": "2.0.4",
     "sass": "^1.77.1",
     "sass-loader": "^14.2.1",
     "scroll-into-view-if-needed": "^2.2.25",
