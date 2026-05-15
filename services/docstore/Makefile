@@ -4,7 +4,7 @@
 
 BUILD_NUMBER ?= local
 BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD)
-BRANCH_NAME_TAG_SAFE = $(shell echo $(BRANCH_NAME) | sed 's/\//\-\-/g')
+BRANCH_NAME_TAG_SAFE = $(shell echo $(BRANCH_NAME) | sed 's/\//\-\-/g' | cut -c1-96)
 PROJECT_NAME = docstore
 BUILD_DIR_NAME = $(shell pwd | xargs basename | tr -cd '[a-zA-Z0-9_.\-]')
 HERE=$(shell pwd)
@@ -16,6 +16,7 @@ IMAGE_REPO_FINAL ?= $(IMAGE_REPO):$(BRANCH_NAME_TAG_SAFE)-$(BUILD_NUMBER)
 IMAGE_CACHE ?= $(IMAGE_REPO):cache-$(shell cat \
 	$(MONOREPO)/package.json \
 	$(MONOREPO)/yarn.lock \
+	$(MONOREPO)/libraries/eslint-plugin/package.json \
 	$(MONOREPO)/libraries/fetch-utils/package.json \
 	$(MONOREPO)/libraries/logger/package.json \
 	$(MONOREPO)/libraries/metrics/package.json \
