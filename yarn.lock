@@ -7145,7 +7145,7 @@ __metadata:
     p-limit: "npm:^2.3.0"
     redlock: "npm:^4.1.0"
     sandboxed-module: "npm:^2.0.4"
-    sinon: "npm:9.0.1"
+    sinon: "npm:^21.1.0"
     sinon-chai: "npm:^3.7.0"
     sinon-stub-promise: "npm:^4.0.0"
     typescript: "npm:^5.0.4"
@@ -7477,7 +7477,7 @@ __metadata:
     mock-fs: "npm:^5.1.2"
     moment: "npm:^2.29.4"
     mongodb-legacy: "npm:6.1.3"
-    mongoose: "npm:8.9.5"
+    mongoose: "npm:8.22.1"
     multer: "npm:2.1.1"
     nocache: "npm:^2.1.0"
     nock: "npm:^13.5.6"
@@ -8550,6 +8550,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sinonjs/commons@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@sinonjs/commons@npm:3.0.1"
+  dependencies:
+    type-detect: "npm:4.0.8"
+  checksum: 10c0/1227a7b5bd6c6f9584274db996d7f8cee2c8c350534b9d0141fc662eaf1f292ea0ae3ed19e5e5271c8fd390d27e492ca2803acd31a1978be2cdc6be0da711403
+  languageName: node
+  linkType: hard
+
+"@sinonjs/fake-timers@npm:^15.3.2":
+  version: 15.4.0
+  resolution: "@sinonjs/fake-timers@npm:15.4.0"
+  dependencies:
+    "@sinonjs/commons": "npm:^3.0.1"
+  checksum: 10c0/de4522afe0699fa8d3ae9d1715cbaa4b47e518c707bb7988a9ec6c7c67557d9f6df451f6be0338598b984a86f65aab9fab38dd9ce75a3c0ffb801a9500d5b10d
+  languageName: node
+  linkType: hard
+
 "@sinonjs/fake-timers@npm:^6.0.0, @sinonjs/fake-timers@npm:^6.0.1":
   version: 6.0.1
   resolution: "@sinonjs/fake-timers@npm:6.0.1"
@@ -8576,6 +8594,16 @@ __metadata:
     "@sinonjs/commons": "npm:^1"
     "@sinonjs/samsam": "npm:^5.0.2"
   checksum: 10c0/b24323cda8531f170c87a07975075e42e5981679a82561df07cf6879e76d76bb071693e1c0681e59d92b5d2ae6983432084916b3297eee883011bb3485f4c8c8
+  languageName: node
+  linkType: hard
+
+"@sinonjs/samsam@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "@sinonjs/samsam@npm:10.0.2"
+  dependencies:
+    "@sinonjs/commons": "npm:^3.0.1"
+    type-detect: "npm:^4.1.0"
+  checksum: 10c0/b590af28a093d30db9b84f32793b18388817c6555df2533666c43e257e8a7becf43d864489d87af1b6e18b3163cc8f92a5bb2b3bec62406e6661a21fea43275b
   languageName: node
   linkType: hard
 
@@ -16648,6 +16676,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diff@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "diff@npm:8.0.4"
+  checksum: 10c0/7ee5d03926db4039be7252ac3b0abaae1bd122a2ca971e5ca7270e444e36ff83dd906fad1a719740ca347e97ed5dc8f458a76a8391dbcd7aff363bdafb348a00
+  languageName: node
+  linkType: hard
+
 "dijkstrajs@npm:^1.0.1":
   version: 1.0.3
   resolution: "dijkstrajs@npm:1.0.3"
@@ -18640,10 +18675,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-uri@npm:^3.0.1":
-  version: 3.1.0
-  resolution: "fast-uri@npm:3.1.0"
-  checksum: 10c0/44364adca566f70f40d1e9b772c923138d47efeac2ae9732a872baafd77061f26b097ba2f68f0892885ad177becd065520412b8ffeec34b16c99433c5b9e2de7
+"fast-uri@npm:3.1.2":
+  version: 3.1.2
+  resolution: "fast-uri@npm:3.1.2"
+  checksum: 10c0/5b35641895959f3f7ab7a7b1b5542bded159346f25ec9f256817b206d50b64eda5828e90d605a2e2fc645c90519a7259c2bab2c942ee728c88b88e5be21b090d
   languageName: node
   linkType: hard
 
@@ -24810,7 +24845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:6.12.0, mongodb@npm:~6.12.0":
+"mongodb@npm:6.12.0":
   version: 6.12.0
   resolution: "mongodb@npm:6.12.0"
   dependencies:
@@ -24878,18 +24913,52 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:8.9.5":
-  version: 8.9.5
-  resolution: "mongoose@npm:8.9.5"
+"mongodb@npm:~6.20.0":
+  version: 6.20.0
+  resolution: "mongodb@npm:6.20.0"
   dependencies:
-    bson: "npm:^6.10.1"
+    "@mongodb-js/saslprep": "npm:^1.3.0"
+    bson: "npm:^6.10.4"
+    mongodb-connection-string-url: "npm:^3.0.2"
+  peerDependencies:
+    "@aws-sdk/credential-providers": ^3.188.0
+    "@mongodb-js/zstd": ^1.1.0 || ^2.0.0
+    gcp-metadata: ^5.2.0
+    kerberos: ^2.0.1
+    mongodb-client-encryption: ">=6.0.0 <7"
+    snappy: ^7.3.2
+    socks: ^2.7.1
+  peerDependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    "@mongodb-js/zstd":
+      optional: true
+    gcp-metadata:
+      optional: true
+    kerberos:
+      optional: true
+    mongodb-client-encryption:
+      optional: true
+    snappy:
+      optional: true
+    socks:
+      optional: true
+  checksum: 10c0/a42d5a04cd2dc195c80293cdc2deb8efd1887559f3a37ffa42bade0d7709a980b6655bf38dd3e774dd68ad063a2c0c577fca9d5bcae1cafa2582083cf39e1e6c
+  languageName: node
+  linkType: hard
+
+"mongoose@npm:8.22.1":
+  version: 8.22.1
+  resolution: "mongoose@npm:8.22.1"
+  dependencies:
+    bson: "npm:^6.10.4"
     kareem: "npm:2.6.3"
-    mongodb: "npm:~6.12.0"
+    mongodb: "npm:~6.20.0"
     mpath: "npm:0.9.0"
     mquery: "npm:5.0.0"
     ms: "npm:2.1.3"
     sift: "npm:17.1.3"
-  checksum: 10c0/9d4741fdd8a047ca56a6b375f54cdb6e5f7b00baddf7675369dddd28e89abcb644fd15c65794d8321adc39a8baa53a987a02c4aac619fea712660003de135a88
+  checksum: 10c0/fd8ca6cc3dd2bec78cc1b2e446b93f8bfd583fa9bb12f32abf57849a4a44286d59972c53b3e45bb3ef46504b39982a783c38e2329bb32a25a221a705a167504f
   languageName: node
   linkType: hard
 
@@ -30704,21 +30773,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sinon@npm:9.0.1":
-  version: 9.0.1
-  resolution: "sinon@npm:9.0.1"
-  dependencies:
-    "@sinonjs/commons": "npm:^1.7.0"
-    "@sinonjs/fake-timers": "npm:^6.0.0"
-    "@sinonjs/formatio": "npm:^5.0.1"
-    "@sinonjs/samsam": "npm:^5.0.3"
-    diff: "npm:^4.0.2"
-    nise: "npm:^4.0.1"
-    supports-color: "npm:^7.1.0"
-  checksum: 10c0/ff660b4b5628fd2ff75226493f03ef512cac82ea11174ccd682da6fbabf000963e36314bad4d2949bff088669f4c68076fed52ed2de6b44c3b545a21540e028a
-  languageName: node
-  linkType: hard
-
 "sinon@npm:9.0.2":
   version: 9.0.2
   resolution: "sinon@npm:9.0.2"
@@ -30731,6 +30785,18 @@ __metadata:
     nise: "npm:^4.0.1"
     supports-color: "npm:^7.1.0"
   checksum: 10c0/2f683f0833e824f651bf71f9f31047747eb2a20800c904b9f9c74e37cab59d7ad2e0dee12f20db9eff821cda0e18c413834efbd68fdc99ade28f1b104469023d
+  languageName: node
+  linkType: hard
+
+"sinon@npm:^21.1.0":
+  version: 21.1.2
+  resolution: "sinon@npm:21.1.2"
+  dependencies:
+    "@sinonjs/commons": "npm:^3.0.1"
+    "@sinonjs/fake-timers": "npm:^15.3.2"
+    "@sinonjs/samsam": "npm:^10.0.2"
+    diff: "npm:^8.0.4"
+  checksum: 10c0/d33aaf68f9bd78ad32f68ace36b7437e1e1f93ea341c4c2fd814935b3bf6788169ebd6258c8bce195d3adb13198814f28048470d80fa239cf2ffbf50dfd3082b
   languageName: node
   linkType: hard
 

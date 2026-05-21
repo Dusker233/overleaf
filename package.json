@@ -78,7 +78,7 @@
     "serve-static": "1.16.2",
     "@uppy/xhr-upload": "3.6.0",
     "recurly": "4.12.0",
-    "mongoose": "8.9.5",
+    "mongoose": "8.22.1",
     "pg": "8.7.1",
     "pg-query-stream": "4.7.1",
     "@aws-sdk/client-s3": "3.994.0",
@@ -196,7 +196,8 @@
     "teeny-request@npm:^9.0.0": "patch:teeny-request@npm%3A9.0.0#~/.yarn/patches/teeny-request-npm-9.0.0-4d571e3c55.patch",
     "fast-xml-builder": "1.1.7",
     "ip-address": "10.1.1",
-    "systeminformation": "5.31.6"
+    "systeminformation": "5.31.6",
+    "fast-uri": "3.1.2"
   },
   "scripts": {
     "format": "prettier --cache --cache-location ./node_modules/.cache/prettier/.prettier-cache --check",
