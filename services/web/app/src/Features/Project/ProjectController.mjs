@@ -484,6 +484,7 @@ const _ProjectController = {
       'export-docx',
       'sharing-updates',
       'export-markdown',
+      'command-palette',
     ].filter(Boolean)
 
     const getUserValues = async userId =>
@@ -955,6 +956,7 @@ const _ProjectController = {
         capabilities,
         roMirrorOnClientNoLocalStorage:
           Settings.adminOnlyLogin || project.name.startsWith('Debug: '),
+        defaultLatexCompiler: Settings.defaultLatexCompiler,
         languages: Settings.languages,
         learnedWords,
         editorThemes: THEME_LIST,
