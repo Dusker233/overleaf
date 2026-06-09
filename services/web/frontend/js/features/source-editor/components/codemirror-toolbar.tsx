@@ -34,6 +34,8 @@ import classNames from 'classnames'
 import { useUserSettingsContext } from '@/shared/context/user-settings-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
+import { useLayoutContext } from '@/shared/context/layout-context'
+import ReviewPanelHeaderBuffer from '@/features/review-panel/components/review-panel-header-buffer'
 
 const sourceEditorToolbarComponents = importOverleafModules(
   'sourceEditorToolbarComponents'
@@ -62,6 +64,7 @@ const Toolbar = memo(function Toolbar() {
     userSettings: { breadcrumbs },
   } = useUserSettingsContext()
   const visualPreviewEnabled = useFeatureFlag('visual-preview')
+  const { focusMode } = useLayoutContext()
 
   const [overflowed, setOverflowed] = useState(false)
 
@@ -157,10 +160,16 @@ const Toolbar = memo(function Toolbar() {
   }, [buildOverflow, insideTable, resizeRef])
 
   const showActions = !state.readOnly && !insideTable
+  const tabsVisible = useFeatureFlag('editor-tabs')
+
+  if (focusMode) {
+    return null
+  }
 
   return (
     <>
-      {showReviewPanelHeader && <ReviewPanelHeader />}
+      {showReviewPanelHeader &&
+        (tabsVisible ? <ReviewPanelHeaderBuffer /> : <ReviewPanelHeader />)}
       <div
         id="ol-cm-toolbar-wrapper"
         className={classNames('ol-cm-toolbar-wrapper', {
