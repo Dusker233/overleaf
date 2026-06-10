@@ -137,7 +137,7 @@ function makeEditorViewProvider() {
       const editorView = new EditorView({
         state: EditorState.create({
           extensions: [
-            tabsListener(),
+            tabsListener(true),
             EditorView.contentAttributes.of({
               'data-testid': 'mock-editor-view',
             }),
@@ -463,14 +463,9 @@ describe('File Tabs', function () {
       cy.then(() => selectDoc(DOC_IDS.main))
       cy.findAllByRole('tab').should('have.length', 1)
 
-      // Attempt to close the only tab
       cy.findByRole('tab', { name: /main\.tex/ }).within(() => {
-        cy.findByRole('button', { name: 'Close' }).click()
+        cy.findByRole('button', { name: 'Close' }).should('be.disabled')
       })
-
-      // Tab must still exist
-      cy.findByRole('tab', { name: /main\.tex/ }).should('exist')
-      cy.findAllByRole('tab').should('have.length', 1)
     })
 
     it('switches to an adjacent tab when closing the currently active tab', function () {
@@ -675,10 +670,10 @@ describe('File Tabs', function () {
         'have.been.calledWithMatch',
         Cypress.sinon.match({ type: 'ui.toggle-left-menu', detail: true })
       )
-      // ...and focuses the previewTabs setting
+      // ...and focuses the editorTabs setting
       cy.get('@dispatchEvent').should(
         'have.been.calledWithMatch',
-        Cypress.sinon.match({ type: 'ui.focus-setting', detail: 'previewTabs' })
+        Cypress.sinon.match({ type: 'ui.focus-setting', detail: 'editorTabs' })
       )
 
       // and the context menu closes
@@ -1152,11 +1147,8 @@ describe('File Tabs', function () {
       cy.findByRole('tab', { name: /appendix\.tex/ }).should('exist')
 
       cy.findByRole('tab', { name: /appendix\.tex/ }).within(() => {
-        cy.findByRole('button', { name: 'Close' }).click()
+        cy.findByRole('button', { name: 'Close' }).should('be.disabled')
       })
-
-      cy.findAllByRole('tab').should('have.length', 1)
-      cy.findByRole('tab', { name: /appendix\.tex/ }).should('exist')
     })
   })
 
