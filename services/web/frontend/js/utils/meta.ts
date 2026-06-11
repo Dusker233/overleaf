@@ -114,6 +114,7 @@ export interface Meta {
   'ol-csrfToken': string
   'ol-currentInstitutionsWithLicence': Institution[]
   'ol-currentManagedUserAdminEmail': string
+  'ol-currentPlanCode': string | null
   'ol-currentUrl': string
   'ol-customerIoEnabled': boolean
   'ol-debugPdfDetach': boolean
@@ -286,6 +287,7 @@ export interface Meta {
   'ol-shouldAllowEditingDetails': boolean
   'ol-shouldLoadHotjar': boolean
   'ol-showAiFeatures': boolean
+  'ol-showAiFeaturesDisabled': boolean
   'ol-showCouponField': boolean
   'ol-showGroupDiscount': boolean
   'ol-showGroupsAndEnterpriseBanner': boolean
