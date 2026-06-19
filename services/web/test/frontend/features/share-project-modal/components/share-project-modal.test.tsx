@@ -713,7 +713,7 @@ describe('<ShareProjectModal/>', function () {
     expect(viewerOption?.classList.contains('disabled')).to.be.false
 
     screen.getByText(
-      /Upgrade to add more collaborators and access collaboration features like track changes and full project history/
+      /Upgrade to add more collaborators and access higher AI allowance, track changes, and full project history/
     )
   })
 
@@ -751,7 +751,7 @@ describe('<ShareProjectModal/>', function () {
     expect(viewerOption?.classList.contains('disabled')).to.be.false
 
     screen.getByText(
-      /Upgrade to add more collaborators and access collaboration features like track changes and full project history/
+      /Upgrade to add more collaborators and access higher AI allowance, track changes, and full project history/
     )
   })
 
@@ -1067,6 +1067,52 @@ describe('<ShareProjectModal/>', function () {
       })
 
       await screen.findByText('Anyone in your group with the link')
+    })
+
+    describe('invited people count', function () {
+      beforeEach(function () {
+        fetchMock.get(
+          `/project/${shareModalProjectDefaults._id}/sharing-link`,
+          404
+        )
+      })
+
+      it('shows "No one invited yet" when the owner is the only person', async function () {
+        renderWithEditorContext(
+          <ShareProjectModal {...modalProps} />,
+          createContextProps({ publicAccessLevel: 'private' })
+        )
+
+        await screen.findByText('No one invited yet')
+        expect(screen.queryByText('1 person invited')).to.be.null
+      })
+
+      it('shows the invited people count, including the owner, when there are collaborators', async function () {
+        const members: ProjectMember[] = [
+          {
+            _id: 'member-author' as UserId,
+            email: 'member-author@example.com',
+            privileges: 'readAndWrite',
+            first_name: 'Member',
+            last_name: 'Author',
+          },
+          {
+            _id: 'member-viewer' as UserId,
+            email: 'member-viewer@example.com',
+            privileges: 'readOnly',
+            first_name: 'Member',
+            last_name: 'Viewer',
+          },
+        ]
+
+        renderWithEditorContext(
+          <ShareProjectModal {...modalProps} />,
+          createContextProps({ publicAccessLevel: 'private', members })
+        )
+
+        await screen.findByText('3 people invited')
+        expect(screen.queryByText('No one invited yet')).to.be.null
+      })
     })
 
     describe('copy link button', function () {
